@@ -54,24 +54,26 @@ export default function NavLinks() {
     <>
       {links.map(({ name, href, icon: Icon, hideOnMobile }) => {
         const isActive = pathname === href;
-        <Link
-          key={name}
-          href={href}
-          className={buttonVariants({
-            variant: isActive ? 'secondary' : 'ghost',
-            className: cn('navLink', { 'hidden md:flex': hideOnMobile }),
-            size: 'lg',
-          })}
-        >
-          <Icon className='w-6' />
-          <p
-            className={`${cn('hidden lg:block', {
-              'font-extrabold': isActive,
-            })}`}
+        return (
+          <Link
+            key={name}
+            href={href}
+            className={buttonVariants({
+              variant: isActive ? 'secondary' : 'ghost',
+              className: cn('navLink', { 'hidden md:flex': hideOnMobile }),
+              size: 'lg',
+            })}
           >
-            {name}
-          </p>
-        </Link>;
+            <Icon className='w-6' />
+            <p
+              className={`${cn('hidden lg:block', {
+                'font-extrabold': isActive,
+              })}`}
+            >
+              {name}
+            </p>
+          </Link>
+        );
       })}
     </>
   );

@@ -12,7 +12,8 @@ export default function SideNav() {
       >
         <Logo />
         <NavLinks />
-        <div>
+        {/* {user && <ProfileLink user={user} />} */}
+        <div className='hidden md:flex relative md:mt-auto flex-1 items-end w-full'>
           <MoreDropdown />
         </div>
       </div>
