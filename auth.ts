@@ -1,8 +1,13 @@
-import { NextAuthOptions } from 'next-auth';
-import prisma from '@/lib/prisma';
 import { PrismaAdapter } from '@auth/prisma-adapter';
+import prisma from '@/lib/prisma';
 import GoogleProvider from 'next-auth/providers/google';
+import nextAuth, { getServerSession, type NextAuthOptions } from 'next-auth';
 import { Adapter } from 'next-auth/adapters';
+import {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+} from 'next';
 
 export const config = {
   pages: {
@@ -62,3 +67,15 @@ export const config = {
     },
   },
 } satisfies NextAuthOptions;
+
+export default nextAuth(config);
+
+// Use it in server contexts
+export function auth(
+  ...args:
+    | [GetServerSidePropsContext['req'], GetServerSidePropsContext['res']]
+    | [NextApiRequest, NextApiResponse]
+    | []
+) {
+  return getServerSession(...args, config);
+}
