@@ -1,19 +1,23 @@
-import { PrismaAdapter } from '@auth/prisma-adapter';
+// import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from '@/lib/prisma';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import GoogleProvider from 'next-auth/providers/google';
-import nextAuth, { getServerSession, type NextAuthOptions } from 'next-auth';
-import { Adapter } from 'next-auth/adapters';
+// import NextAuth, { getServerSession, type NextAuthOptions } from 'next-auth';
+// import { Adapter } from 'next-auth/adapters';
 import {
   GetServerSidePropsContext,
   NextApiRequest,
   NextApiResponse,
 } from 'next';
+import { type NextAuthOptions } from 'next-auth';
+import NextAuth, { getServerSession } from 'next-auth/next';
 
 export const config = {
+  secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: '/login',
   },
-  adapter: PrismaAdapter(prisma) as unknown as Adapter,
+  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -22,6 +26,9 @@ export const config = {
   ],
   session: {
     strategy: 'jwt',
+  },
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET,
   },
   callbacks: {
     async session({ session, token }) {
@@ -57,6 +64,16 @@ export const config = {
         });
       }
 
+      // const updatedToken = {
+      //   id: prismaUser.id,
+      //   name: prismaUser.name,
+      //   email: prismaUser.email,
+      //   username: prismaUser.username,
+      //   picture: prismaUser.image,
+      // };
+      // console.log('JWT callback - after (existing user):', updatedToken);
+      // return updatedToken;
+
       return {
         id: prismaUser.id,
         name: prismaUser.name,
@@ -66,9 +83,21 @@ export const config = {
       };
     },
   },
+  logger: {
+    debug: (code, metadata) => {
+      console.log(`[NEXTAUTH DEBUG]: ${code}`, metadata);
+    },
+    warn: (code) => {
+      console.warn(`[NEXTAUTH WARN]: ${code}`);
+    },
+    error: (code, metadata) => {
+      console.error(`[NEXTAUTH ERROR]: ${code}`, metadata);
+    },
+  },
+  // };
 } satisfies NextAuthOptions;
 
-export default nextAuth(config);
+export default NextAuth(config);
 
 // Use it in server contexts
 export function auth(
@@ -77,5 +106,6 @@ export function auth(
     | [NextApiRequest, NextApiResponse]
     | []
 ) {
+  console.log('+++Config:', config);
   return getServerSession(...args, config);
 }
